@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 import pytest
 
-from app19.api_calclator import Calcr # указываю папку app19
+from api_calclator import Calcr # указываю папку app19
 
 
 class TestCalc: # слово Test обязательно
