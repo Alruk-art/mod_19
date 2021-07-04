@@ -1,9 +1,8 @@
 import sys
-sys.path.append("..")
-import pytest
+sys.path.append("")
 
-from PetFriends_Test.api import PetFriends
-from PetFriends_Test.settings import valid_email, valid_password, invalid_email, invalid_email_2, invalid_password_2
+from SF_mod_19.Test_PetFriends.api_pf import PetFriends
+from SF_mod_19.Test_PetFriends.pf_settings import valid_email, valid_password, invalid_email, invalid_password, invalid_email_2, invalid_password_2
 
 import os
 
@@ -23,14 +22,14 @@ def test_1_get_api_key_for_valid_user(email=valid_email, password=valid_password
     assert 'key' in result
 
 
-def test_2_get_api_key_for_valid_user(email=invalid_email, password=valid_password):
+def test_2_get_api_key_for_invalid_user(email=invalid_email, password=valid_password):
     # неверный email
     status, result = pf.get_api_key(email, password)
 
     assert status == 403
-    assert 'key' in result
+    assert 'key' not in result
 
-def test_3_get_api_key_for_valid_user(email="email", password=valid_password):
+def test_3_get_api_key_for_invalid_user(email=valid_email, password=invalid_password_2):
     # неверный email
     status, result = pf.get_api_key(email, password)
     print()
@@ -38,7 +37,7 @@ def test_3_get_api_key_for_valid_user(email="email", password=valid_password):
     assert status == 403
     assert 'key' not in result
 
-def test_4_get_api_key_for_valid_user(email=invalid_email_2, password=valid_password):
+def test_4_get_api_key_for_invalid_user(email=invalid_email_2, password=valid_password):
     # пустой  email
     status, result = pf.get_api_key(email, password)
     assert status == 403
@@ -46,13 +45,13 @@ def test_4_get_api_key_for_valid_user(email=invalid_email_2, password=valid_pass
     print('status 403, key not in result')
     assert 'key' not in result
 
-def test_5_get_api_key_for_valid_user(email=valid_email, password=invalid_password_2):
+def test_5_get_api_key_for_valid_user(email=valid_email, password=invalid_password):
     # пустой  password
     status, result = pf.get_api_key(email, password)
-    assert status == 200
-    assert 'key' in result
+    assert status == 403
+    assert 'key' not in  result
 
-def test_6_get_all_pets_with_valid_key(filter=''):
+def test_6_get_all_pets_with_valid_key(filter='my_pets'):
     """ Проверяем что запрос всех питомцев возвращает не пустой список.
     Для этого сначала получаем api ключ и сохраняем в переменную auth_key. Далее используя этого ключ
     запрашиваем список всех питомцев и проверяем что список не пустой.
@@ -62,6 +61,7 @@ def test_6_get_all_pets_with_valid_key(filter=''):
     status, result = pf.get_list_of_pets(auth_key, filter)
     print()
     print('auth_key=',auth_key, 'status =',status, )
+    print (result['pets'])
     assert status == 200
     assert len(result['pets']) > 0
 
@@ -136,7 +136,7 @@ def test_10_add_new_pet_with_wrong_data(name='Stuart', animal_type='терьер
     print('result [name]=', result['name'])
 
 def test_11_add_new_pet_with_None(name=None, animal_type='терьер',
-                                     age='None', pet_photo='images/cat1.jpg'):
+                                     age=None, pet_photo='images/cat1.jpg'):
     """Проверяем что можно добавить питомца с None .
      Ответ не понял. Прошёл тест или нет. на странице ошибки нет"""
 
@@ -210,15 +210,19 @@ def test_14_add_new_pet_simple_with_valid_data(name='Тигрик', animal_type=
         status, result = pf.add_new_pet_simple(auth_key, name, animal_type, age)
 
         # Сверяем полученный ответ с ожидаемым результатом
-        assert status == 200
-        assert result['name'] == name
-        assert result['age'] == age
-        assert result['animal_type'] == animal_type
         print()
-        print('status simple ADD name =', status)
-        print('result [name]=',result['name'])
-        print('result [animal_type]=', result['animal_type'])
-        print('result [age]=', result['age'])
+        assert status == 200
+        print ('status simple ADD name =', status)
+        assert result['name'] == name
+        print ('result [name]=', result['name'])
+        assert result['age'] == age
+        print ('result [age]=', result['age'])
+        assert result['animal_type'] == animal_type
+        print ('result [animal_type]=', result['animal_type'])
+        print()
+
+
+
 
 
 def test_15_add_photo_pet(pet_photo='images/animal_jp.jpg'):
@@ -236,6 +240,3 @@ def test_15_add_photo_pet(pet_photo='images/animal_jp.jpg'):
 
     assert status == 200
     print ('status=',status)
-
-
-
